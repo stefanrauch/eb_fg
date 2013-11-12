@@ -24,7 +24,7 @@
 static const char* program;
 
 
-void itoa(unsigned int n, char s[], int base){
+void itoa(unsigned int n,char s[], int base){
      int i;
  
      i = 0;
@@ -35,9 +35,9 @@ void itoa(unsigned int n, char s[], int base){
  }
 
 
-void die(const char* where, eb_status_t status) {
-  fprintf(stderr, "%s: %s failed: %s\n",
-    program, where, eb_status(status));
+void die(const char* where,eb_status_t status) {
+  fprintf(stderr,"%s: %s failed: %s\n",
+    program,where, eb_status(status));
   exit(1);
 }
 
@@ -77,8 +77,8 @@ int main(int argc, const char** argv) {
   
   program = argv[0];
   if (argc < 4) {
-    fprintf(stderr, "reads value of timestamp from time stamp latch unit\n");
-    fprintf(stderr, "Syntax: %s <protocol/host/port> <nIterations> <FIFO(0..n)>\n", argv[0]);
+    fprintf(stderr,"reads value of timestamp from time stamp latch unit\n");
+    fprintf(stderr,"Syntax: %s <protocol/host/port> <nIterations> <FIFO(0..n)>\n", argv[0]);
     return 1;
   }
   
@@ -87,23 +87,23 @@ int main(int argc, const char** argv) {
   nIterations = strtol(argv[2],0,10);
   
   /* Open a socket supporting only 32-bit operations.
-   * As we are not exporting any slaves, we don't care what port we get => 0.
+   * As we are not exporting any slaves^Mwe don't care what port we get => 0.
    * This function always returns immediately.
    * EB_ABI_CODE helps detect if the application matches the library.
    */
-  if ((status = eb_socket_open(EB_ABI_CODE, 0, EB_ADDR32|EB_DATA32, &socket)) != EB_OK)
-    die("eb_socket_open", status);
+  if ((status = eb_socket_open(EB_ABI_CODE,0, EB_ADDR32|EB_DATA32, &socket)) != EB_OK)
+    die("eb_socket_open",status);
   
   /* Open the remote device with 3 attempts to negotiate bus width.
    * This function is blocking and may stall the thread for up to 3 seconds.
-   * If you need asynchronous open, see eb_device_open_nb.
+   * If you need asynchronous open^Msee eb_device_open_nb.
    * Note: the supported widths can never be more than the socket supports.
    */
-  if ((status = eb_device_open(socket, devName, EB_ADDR32|EB_DATA32, 3, &device)) != EB_OK)
-    die("eb_device_open", status);
+  if ((status = eb_device_open(socket,devName, EB_ADDR32|EB_DATA32, 3, &device)) != EB_OK)
+    die("eb_device_open",status);
   
   /* Record the address of the device */
-  wrFG				= FG_BASE;
+  wrFG	= FG_BASE;
 
   fp = fopen("LSA_data.txt","r");
 
@@ -120,12 +120,12 @@ int main(int argc, const char** argv) {
 
     int count = 0;
 
-    while(fgets(line, MAXLINE, fp) != NULL) {
-      if(sscanf(line, "%d %d %d %d %d %d\n", &line_pset.a, &line_pset.l_a, &line_pset.b, &line_pset.l_b, &line_pset.c, &line_pset.n) == 6 ) {
-	      printf("%hi %hi %hi %hi %d %hi\n", line_pset.a,  line_pset.l_a,  line_pset.b,  line_pset.l_b,  line_pset.c,  line_pset.n);
+    while(fgets(line,MAXLINE, fp) != NULL) {
+      if(sscanf(line,"%d %d %d %d %d %d\n", &line_pset.a, &line_pset.l_a, &line_pset.b, &line_pset.l_b, &line_pset.c, &line_pset.n) == 6 ) {
+	printf("%hi %hi %hi %hi %d %hi\n", line_pset.a,  line_pset.l_a,  line_pset.b,  line_pset.l_b,  line_pset.c,  line_pset.n);
 //	printf("before open\n");fflush(stdout);       
  
-        if ((status = eb_cycle_open(device, 0, eb_block, &cycle)) != EB_OK)
+        if ((status = eb_cycle_open(device,0, eb_block, &cycle)) != EB_OK)
           die("EP eb_cycle_open", status);
 //	printf("after open\n");fflush(stdout);       
         
@@ -155,8 +155,8 @@ int main(int argc, const char** argv) {
 
 
   /*
-  if ((status = eb_device_read(device, wrTLU + GSI_TM_LATCH_ATSHI, EB_BIG_ENDIAN|EB_DATA32, &data, 0, eb_block)) != EB_OK)
-    die("TLU eb_device_read", status);
+  if ((status = eb_device_read(device,wrTLU + GSI_TM_LATCH_ATSHI, EB_BIG_ENDIAN|EB_DATA32, &data, 0, eb_block)) != EB_OK)
+    die("TLU eb_device_read",status);
   timestamp = data;
   timestamp = (timestamp << 32); */
   
@@ -169,26 +169,26 @@ int main(int argc, const char** argv) {
   for (l_i=0; 0; l_i++) {
 
     // >>>>>>>>>>>>>>>>>>>>>>>>> this is the important part >>>>>>>>>>>>>>
-    if ((status = eb_cycle_open(device, 0, eb_block, &cycle)) != EB_OK)
-      die("EP eb_cycle_open", status);
+    if ((status = eb_cycle_open(device,0, eb_block, &cycle)) != EB_OK)
+      die("EP eb_cycle_open",status);
 
 
     /* Queueing operations to a cycle never fails (EB_OOM is reported later) */
-    /* read status of FIFOs is disabled, since a successful read is detected by the status returned by eb_cycle_close */
-  //  eb_cycle_read(cycle, wrTLU + GSI_TM_LATCH_FIFO_READY, EB_BIG_ENDIAN|EB_DATA32, &data1);
+    /* read status of FIFOs is disabled,since a successful read is detected by the status returned by eb_cycle_close */
+  //  eb_cycle_read(cycle,wrTLU + GSI_TM_LATCH_FIFO_READY, EB_BIG_ENDIAN|EB_DATA32, &data1);
     /* read high word of latched timestamp */
-  //  eb_cycle_read(cycle, wrTLUFIFO + GSI_TM_LATCH_FIFO_FTSHI, EB_BIG_ENDIAN|EB_DATA32, &data2);
+  //  eb_cycle_read(cycle,wrTLUFIFO + GSI_TM_LATCH_FIFO_FTSHI, EB_BIG_ENDIAN|EB_DATA32, &data2);
     /* read low word of latched timestamp */
- //   eb_cycle_read(cycle, wrTLUFIFO + GSI_TM_LATCH_FIFO_FTSLO, EB_BIG_ENDIAN|EB_DATA32, &data3);
+ //   eb_cycle_read(cycle,wrTLUFIFO + GSI_TM_LATCH_FIFO_FTSLO, EB_BIG_ENDIAN|EB_DATA32, &data3);
     /* pop timestamp from FIFO */
- //   eb_cycle_write(cycle, wrTLUFIFO + GSI_TM_LATCH_FIFO_POP, EB_BIG_ENDIAN|EB_DATA32, 0xF);
+ //   eb_cycle_write(cycle,wrTLUFIFO + GSI_TM_LATCH_FIFO_POP, EB_BIG_ENDIAN|EB_DATA32, 0xF);
 
-    /* Because the cycle was opened with eb_block, this is a blocking call.
-     * Upon termination, data and data2 will be valid.
-     * For higher performance, use multiple asynchronous cycles in a pipeline.
+    /* Because the cycle was opened with eb_block,this is a blocking call.
+     * Upon termination,data and data2 will be valid.
+     * For higher performance,use multiple asynchronous cycles in a pipeline.
      */
 
-    /* for the TLU, "POP" yields an error in case no TS is available */
+    /* for the TLU,"POP" yields an error in case no TS is available */
     if ((status = eb_cycle_close(cycle)) == EB_OK) {
       // <<<<<<<<<<<<<<<<<<<<<<< this was the important part
       /* do some gymnastics to get a human readible timestamp */
@@ -203,17 +203,17 @@ int main(int argc, const char** argv) {
       prev_timestamp = actu_timestamp;
       nLatches++;
 
-      printf("diff time_stamp of FIFO %d  : %llu [ns] \n", nFIFO, diff_timestamp<<3); //fflush (stdout);  
-      printf("latched timestamp of FIFO %d: %llu [ns] \n", nFIFO, actu_timestamp<<3); fflush (stdout);
+      printf("diff time_stamp of FIFO %d  : %llu [ns] \n",nFIFO, diff_timestamp<<3); //fflush (stdout);  
+      printf("latched timestamp of FIFO %d: %llu [ns] \n",nFIFO, actu_timestamp<<3); fflush (stdout);
     }
   }
 
 
   /* close handler cleanly */
   if ((status = eb_device_close(device)) != EB_OK)
-    die("eb_device_close", status);
+    die("eb_device_close",status);
   if ((status = eb_socket_close(socket)) != EB_OK)
-    die("eb_socket_close", status);
+    die("eb_socket_close",status);
   
   return 0;
 }
