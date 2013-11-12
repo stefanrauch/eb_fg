@@ -18,7 +18,7 @@
 #define FG_MAXNUM		6
 #define FG_BASE 		0x1d000 						/* begin of startshared */
 #define FG_PARAM_1	FG_BASE + FG_MAXNUM
-#define MAXLINE 		500
+#define MAXLINE 		100
 
 
 static const char* program;
@@ -85,30 +85,8 @@ int main(int argc, const char** argv) {
   devName     = argv[1];
   nFIFO       = strtol(argv[3],0,10);
   nIterations = strtol(argv[2],0,10);
-
-  fp = fopen("LSA_data.txt","r");
-
-  if (fp) {
-    char line[MAXLINE];
-    struct element {
-      int a;
-      int l_a;
-      int b;
-      int l_b;
-      int c;
-      int n;
-    } bar;
-
-    while(fgets(line, MAXLINE, fp) != NULL) {
-      if(sscanf(line, "%d %d %d %d %d %d\n", bar->a, bar->l_a, bar.b, bar.l_b, bar.c, bar.n) == 6 )
-	printf("%d %d %d %d %d %d\n", bar.a, bar.l_a, bar.b, bar.l_b, bar.c, bar.n);
-      }
-    fclose(fp); 	
-  }
-
-
-
-  /* Open a socket supporting only 16-bit operations.
+  
+  /* Open a socket supporting only 32-bit operations.
    * As we are not exporting any slaves, we don't care what port we get => 0.
    * This function always returns immediately.
    * EB_ABI_CODE helps detect if the application matches the library.
@@ -127,15 +105,53 @@ int main(int argc, const char** argv) {
   /* Record the address of the device */
   wrFG				= FG_BASE;
 
+  fp = fopen("LSA_data.txt","r");
+
+  if (fp) {
+    char line[MAXLINE];
+    struct pset {
+      int a;
+      int l_a;
+      int b;
+      int l_b;
+      int c;
+      int n;
+    } line_pset;
+
+    int count = 0;
+
+    while(fgets(line, MAXLINE, fp) != NULL) {
+      if(sscanf(line, "%d %d %d %d %d %d\n", &line_pset.a, &line_pset.l_a, &line_pset.b, &line_pset.l_b, &line_pset.c, &line_pset.n) == 6 ) {
+	      printf("%hi %hi %hi %hi %d %hi\n", line_pset.a,  line_pset.l_a,  line_pset.b,  line_pset.l_b,  line_pset.c,  line_pset.n);
+        
+        if ((status = eb_cycle_open(device, 0, eb_block, &cycle)) != EB_OK)
+          die("EP eb_cycle_open", status);
+        
+        eb_cycle_write(cycle, wrFG + count++, EB_BIG_ENDIAN|EB_DATA32, line_pset.a);
+        eb_cycle_write(cycle, wrFG + count++, EB_BIG_ENDIAN|EB_DATA32, line_pset.l_a);
+        eb_cycle_write(cycle, wrFG + count++, EB_BIG_ENDIAN|EB_DATA32, line_pset.b);
+        eb_cycle_write(cycle, wrFG + count++, EB_BIG_ENDIAN|EB_DATA32, line_pset.l_b);
+        eb_cycle_write(cycle, wrFG + count++, EB_BIG_ENDIAN|EB_DATA32, line_pset.c);
+        eb_cycle_write(cycle, wrFG + count++, EB_BIG_ENDIAN|EB_DATA32, line_pset.n);
+        
+        if ((status = eb_cycle_close(cycle)) == EB_OK)
+          die("EP eb_cycle_close", status);
+        
+      }
+    }
+      
+    fclose(fp); 	
+  }
+
+  return 0;
+
+
   /*
   if ((status = eb_device_read(device, wrTLU + GSI_TM_LATCH_ATSHI, EB_BIG_ENDIAN|EB_DATA32, &data, 0, eb_block)) != EB_OK)
     die("TLU eb_device_read", status);
   timestamp = data;
   timestamp = (timestamp << 32); */
   
-  /*  write to shared memory of fg */
-  if ((status = eb_device_write(device, wrFG, EB_BIG_ENDIAN|EB_DATA32, 0xcafe, 0, eb_block)) != EB_OK)
-    die("FG eb_device_write", status);
 
   /* Read data from FIFO in one cycle.
    * This demonstrates how to read multiple values in a single round trip.

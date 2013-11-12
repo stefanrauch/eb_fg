@@ -18,15 +18,15 @@ all: 	eb_native_demo eb_wbapi_demo eb_fg_demo
 
 eb_native_demo: $(IDIR)/eb_native_demo.c
 	@echo Making eb_native_demo
-	gcc -g -Wall -D$(FLAG) $(INCLUDE) -Wl,-rpath,$(PREFIX)/lib -o $(ODIR)/eb_native_demo $(IDIR)/eb_native_demo.c $(LIBS)
+	gcc -g  -D$(FLAG) $(INCLUDE) -Wl,-rpath,$(PREFIX)/lib -o $(ODIR)/eb_native_demo $(IDIR)/eb_native_demo.c $(LIBS)
 
 eb_fg_demo: $(IDIR)/eb_fg_demo.c
 	@echo Making eb_fg_demo
-	gcc -g -Wall -D$(FLAG) $(INCLUDE) -Wl,-rpath,$(PREFIX)/lib -o $(ODIR)/eb_fg_demo $(IDIR)/eb_fg_demo.c $(LIBS)
+	gcc -g  -D$(FLAG) $(INCLUDE) -Wl,-rpath,$(PREFIX)/lib -o $(ODIR)/eb_fg_demo $(IDIR)/eb_fg_demo.c $(LIBS)
 
 eb_wbapi_demo: $(IDIR)/eb_wbapi_demo.c
 	@echo Making eb_wbapi_demo
-	gcc -g -Wall -D$(FLAG) $(INCLUDE) -Wl,-rpath,$(PREFIX)/lib -o $(ODIR)/eb_wbapi_demo $(IDIR)/eb_wbapi_demo.c $(WBDIR)/wb_api.c $(LIBS)
+	gcc -g  -D$(FLAG) $(INCLUDE) -Wl,-rpath,$(PREFIX)/lib -o $(ODIR)/eb_wbapi_demo $(IDIR)/eb_wbapi_demo.c $(WBDIR)/wb_api.c $(LIBS)
 
 install2svn:
 	@echo for installing to CSCO subversion please do
