@@ -122,7 +122,7 @@ int main(int argc, const char** argv) {
 
     while(fgets(line,MAXLINE, fp) != NULL) {
       if(sscanf(line,"%d %d %d %d %d %d\n", &line_pset.a, &line_pset.l_a, &line_pset.b, &line_pset.l_b, &line_pset.c, &line_pset.n) == 6 ) {
-	printf("%hi %hi %hi %hi %d %hi\n", line_pset.a,  line_pset.l_a,  line_pset.b,  line_pset.l_b,  line_pset.c,  line_pset.n);
+	printf("%x %d %x %d %x %x\n", line_pset.a,  line_pset.l_a,  line_pset.b,  line_pset.l_b,  line_pset.c,  line_pset.n);
 //	printf("before open\n");fflush(stdout);       
  
         if ((status = eb_cycle_open(device,0, eb_block, &cycle)) != EB_OK)
